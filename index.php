@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Weather</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <script src="https:code.jquery.com/jquery-3.2.1.min.js"
+    integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous" ></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <div id="floating-panel">
+      <input id="address" type="textbox" >
+      <input id="submit" type="button" value="Get Weather">
+    </div>
+    <div id="map"></div>
+    <div id="showWeather"></div>
+    <script>
+      function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 8,
+          center: {lat: -34.397, lng: 150.644}
+        });
+        var geocoder = new google.maps.Geocoder();
+
+        document.getElementById('submit').addEventListener('click', function() {
+          geocodeAddress(geocoder, map);
+
+           // $(document).ready(function(){
+           //  $("#getWeather").click(function(){
+                var city = $("#address").val();
+                var key = '4c230f909591fecf293f367510aff677';
+
+                $.ajax({
+                    url:'http://api.openweathermap.org/data/2.5/weather',
+                    dataType: 'json',
+                    type: 'GET',
+                    data: {q:city,appid:key,units:'metric'},
+                    success: function(data){
+                        var wf = '';
+                        $.each(data.weather,function(index,val){
+                            wf += '<p><b>'+ data.name + "</b><img src=http://openweathermap.org/img/wn/" + val.icon + ".png></p>" + data.main.temp + '&deg;C' + ' | ' + val.main + ", " + val.description
+                        });
+                        $("#showWeather").html(wf);
+                    }
+                
+                    
+                })
+       
+
+        });
+      }
+
+      function geocodeAddress(geocoder, resultsMap) {
+        var address = document.getElementById('address').value;
+        geocoder.geocode({'address': address}, function(results, status) {
+          if (status === 'OK') {
+            resultsMap.setCenter(results[0].geometry.location);
+            var marker = new google.maps.Marker({
+              map: resultsMap,
+              position: results[0].geometry.location
+            });
+          } else {
+            alert('Geocode was not successful for the following reason: ' + status);
+          }
+        });
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBusWI_-tDdljmLyO9Xr-0pD8VWcYmn3oU&callback=initMap">
+    </script>
+  </body>
+</html>
